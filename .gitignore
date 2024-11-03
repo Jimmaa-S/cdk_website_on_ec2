@@ -1,10 +1,17 @@
+# Swap files
 *.swp
+
+# Node.js package lock
 package-lock.json
-__pycache__
-.pytest_cache
-.venv
-*.egg-info
+
+# Python cache and virtual environment
+__pycache__/
+.pytest_cache/
+.venv/
+*.egg-info/
 
 # CDK asset staging directory
-.cdk.staging
-cdk.out
+.cdk.staging/
+cdk.out/
+
+

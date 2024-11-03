@@ -21,22 +21,22 @@ class ServerStack(Stack):
                 instance_type=ec2.InstanceType("t2.micro"),
                 machine_image=ec2.MachineImage.latest_amazon_linux(),
                 vpc=vpc,
-                vpc_subnet=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),  # Use 'vpc_subnet' here
+                vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
                 security_group=web_sg,
             )
 
-        # Create an RDS instance in private subnets
+        # Define a security group for the RDS instance to allow traffic from the web servers
+        rds_sg = ec2.SecurityGroup(self, "RDSSG", vpc=vpc, description="Allow traffic from web servers")
+        rds_sg.add_ingress_rule(web_sg, ec2.Port.tcp(3306), "Allow MySQL access from web servers")
+
+        # Create an RDS instance in private subnets with the defined security group
         rds_instance = rds.DatabaseInstance(self, "RDSInstance",
             engine=rds.DatabaseInstanceEngine.mysql(version=rds.MysqlEngineVersion.VER_8_0_28),
             instance_type=ec2.InstanceType("t2.micro"),
             vpc=vpc,
-            vpc_subnet=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT),  # Use 'vpc_subnet' here
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_NAT),
             multi_az=False,
             allocated_storage=20,
             database_name="MyDatabase",
+            security_groups=[rds_sg],  # Apply the RDS security group here
         )
-        
-        # Add a security group rule for RDS to allow traffic from web servers
-        rds_sg = ec2.SecurityGroup(self, "RDSSG", vpc=vpc, description="Allow traffic from web servers")
-        rds_sg.add_ingress_rule(web_sg, ec2.Port.tcp(3306), "Allow MySQL access from web servers")
-        rds_instance.add_security_group(rds_sg)

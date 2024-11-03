@@ -6,7 +6,8 @@ from cdk_website_on_ec2.network_stack import NetworkStack
 from cdk_website_on_ec2.server_stack import ServerStack
 
 app = cdk.App()
-
+# Define the evnivironment
+env = cdk.Environment(account=891377324240, region= "N. Virginia")
 # Instantiate the NetworkStack
 network_stack = NetworkStack(app, "NetworkStack")
 
